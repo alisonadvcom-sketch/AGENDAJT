@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { CalendarDays, House, Plus, SlidersHorizontal, Users, Wallet } from "lucide-react";
 import { Toaster } from "sonner";
 import { apptToDraft, blankAppt, blankClient, todayISO, useBook, type ApptDraft, type ClientDraft } from "@/lib/book";
@@ -23,6 +23,10 @@ export function JaniceApp() {
   const [menu, setMenu] = useState(false);
   const [appt, setAppt] = useState<ApptDraft | null>(null);
   const [client, setClient] = useState<ClientDraft | null>(null);
+
+  useLayoutEffect(() => {
+    useBook.getState().adoptStorage();
+  }, []);
 
   const api = useMemo(
     () => ({

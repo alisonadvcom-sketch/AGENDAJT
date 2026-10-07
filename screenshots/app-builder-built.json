@@ -21,9 +21,9 @@
       "status": 200,
       "title": "Janice Tarot",
       "hasCanvas": false,
-      "bodyTextLen": 0,
-      "bodyTextHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "bodyTextPrefix": "",
+      "bodyTextLen": 813,
+      "bodyTextHash": "a7b98c8c9fec8ae0fab84ac71e72ec088222b36090c7d00864481307ab74e9c2",
+      "bodyTextPrefix": "Janice Tarot Hoje Tem dados de exemplo para você ver a agenda fu",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -35,8 +35,6 @@
   ],
   "authWarnings": [],
   "verdictFile": "/workspace/screenshots/app-builder-built.json",
-  "divergesFromBaseline": true,
-  "baselineReasons": [
-    "mobile: body text collapsed (813 -> 0 chars)"
-  ]
+  "divergesFromBaseline": false,
+  "baselineReasons": []
 }

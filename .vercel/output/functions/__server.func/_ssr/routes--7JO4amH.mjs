@@ -4,7 +4,7 @@ import { a as SlidersHorizontal, c as ChevronRight, l as ChevronLeft, n as Walle
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { t as create } from "../_libs/zustand.mjs";
 import { a as Bar, i as CartesianGrid, n as YAxis, o as ResponsiveContainer, r as XAxis, s as Tooltip, t as BarChart } from "../_libs/recharts+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-CZbBgn9x.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes--7JO4amH.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom());
@@ -27,13 +27,19 @@ var defaultSettings = () => ({
 	practitioner: "Janice",
 	pixKey: ""
 });
+var TZ = "America/Sao_Paulo";
 function todayISO(now = /* @__PURE__ */ new Date()) {
-	return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+	return new Intl.DateTimeFormat("en-CA", {
+		timeZone: TZ,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit"
+	}).format(now);
 }
 function addDays(n, base = /* @__PURE__ */ new Date()) {
-	const d = new Date(base.getFullYear(), base.getMonth(), base.getDate());
-	d.setDate(d.getDate() + n);
-	return todayISO(d);
+	const [y, m, d] = todayISO(base).split("-").map(Number);
+	const dt = new Date(Date.UTC(y, m - 1, d + n));
+	return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
 }
 function parseISODate(iso) {
 	const [y, m, d] = iso.split("-").map(Number);
@@ -100,7 +106,11 @@ function initials(name) {
 	return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 function greeting(now = /* @__PURE__ */ new Date()) {
-	const h = now.getHours();
+	const h = Number(new Intl.DateTimeFormat("en-US", {
+		timeZone: TZ,
+		hour: "numeric",
+		hourCycle: "h23"
+	}).format(now));
 	if (h < 12) return "Bom dia";
 	if (h < 18) return "Boa tarde";
 	return "Boa noite";
@@ -159,7 +169,8 @@ function dueReminders(appointments, today) {
 	}).sort(compareAppt);
 }
 function upcomingBirthdays(clients, today = /* @__PURE__ */ new Date(), within = 14) {
-	const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	const start = parseISODate(todayISO(today));
+	if (!start) return [];
 	const hits = [];
 	for (const client of clients) {
 		if (!client.birthday) continue;
@@ -168,11 +179,15 @@ function upcomingBirthdays(clients, today = /* @__PURE__ */ new Date(), within =
 		let when = new Date(start.getFullYear(), parsed.getMonth(), parsed.getDate());
 		if (when < start) when = new Date(start.getFullYear() + 1, parsed.getMonth(), parsed.getDate());
 		const inDays = Math.round((when.getTime() - start.getTime()) / 864e5);
-		if (inDays >= 0 && inDays <= within) hits.push({
-			client,
-			when: todayISO(when),
-			inDays
-		});
+		if (inDays >= 0 && inDays <= within) {
+			const mm = String(when.getMonth() + 1).padStart(2, "0");
+			const dd = String(when.getDate()).padStart(2, "0");
+			hits.push({
+				client,
+				when: `${when.getFullYear()}-${mm}-${dd}`,
+				inDays
+			});
+		}
 	}
 	return hits.sort((a, b) => a.inDays - b.inDays);
 }
@@ -328,6 +343,7 @@ function defaultServices() {
 	];
 }
 function seedBook() {
+	const stamp = `${todayISO()}T12:00:00.000Z`;
 	const clients = [
 		{
 			id: "cli-marina",
@@ -337,7 +353,7 @@ function seedBook() {
 			notes: "Prefere pergunta objetiva. Veio por indicação da irmã.",
 			birthday: birthdayNear(2, 1991),
 			source: "Indicação",
-			createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+			createdAt: stamp,
 			demo: true
 		},
 		{
@@ -348,7 +364,7 @@ function seedBook() {
 			notes: "Sensível a horário. Confirmar na véspera.",
 			birthday: "",
 			source: "Instagram",
-			createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+			createdAt: stamp,
 			demo: true
 		},
 		{
@@ -359,7 +375,7 @@ function seedBook() {
 			notes: "",
 			birthday: "",
 			source: "Indicação",
-			createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+			createdAt: stamp,
 			demo: true
 		},
 		{
@@ -370,7 +386,7 @@ function seedBook() {
 			notes: "Pediu para pagar depois do quinto dia útil.",
 			birthday: "",
 			source: "WhatsApp",
-			createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+			createdAt: stamp,
 			demo: true
 		},
 		{
@@ -381,7 +397,7 @@ function seedBook() {
 			notes: "",
 			birthday: "",
 			source: "Cliente antiga",
-			createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+			createdAt: stamp,
 			demo: true
 		},
 		{
@@ -392,7 +408,7 @@ function seedBook() {
 			notes: "Pediu retorno. Ainda não marcou.",
 			birthday: "",
 			source: "Indicação",
-			createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+			createdAt: stamp,
 			demo: true
 		}
 	];
@@ -404,7 +420,7 @@ function seedBook() {
 		reminderDone: false,
 		visitStatus: "agendado",
 		notes: "",
-		createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+		createdAt: stamp,
 		paidAt: partial.payStatus === "pago" ? partial.date : "",
 		demo: true,
 		...partial
@@ -549,26 +565,13 @@ function persistBook(book) {
 	if (typeof window === "undefined") return;
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(book));
 }
-function loadBook() {
-	if (typeof window === "undefined") return {
-		clients: [],
-		appointments: [],
-		services: defaultServices(),
-		settings: defaultSettings()
-	};
+function readStored() {
+	if (typeof window === "undefined") return null;
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);
-		if (!raw) {
-			const seeded = seedBook();
-			persistBook(seeded);
-			return seeded;
-		}
+		if (!raw) return null;
 		const parsed = JSON.parse(raw);
-		if (!Array.isArray(parsed.clients) || !Array.isArray(parsed.appointments)) {
-			const seeded = seedBook();
-			persistBook(seeded);
-			return seeded;
-		}
+		if (!Array.isArray(parsed.clients) || !Array.isArray(parsed.appointments)) return null;
 		return {
 			clients: parsed.clients,
 			appointments: parsed.appointments,
@@ -579,9 +582,7 @@ function loadBook() {
 			}
 		};
 	} catch {
-		const seeded = seedBook();
-		persistBook(seeded);
-		return seeded;
+		return null;
 	}
 }
 var useBook = create((set, get) => {
@@ -594,7 +595,15 @@ var useBook = create((set, get) => {
 		set(next);
 	};
 	return {
-		...loadBook(),
+		...seedBook(),
+		adoptStorage: () => {
+			const stored = readStored();
+			if (stored) {
+				set(stored);
+				return;
+			}
+			persistBook(snapshot(get()));
+		},
 		saveClient: (draft) => {
 			const name = draft.name.trim();
 			const row = {
@@ -2947,6 +2956,9 @@ function JaniceApp() {
 	const [menu, setMenu] = (0, import_react.useState)(false);
 	const [appt, setAppt] = (0, import_react.useState)(null);
 	const [client, setClient] = (0, import_react.useState)(null);
+	(0, import_react.useLayoutEffect)(() => {
+		useBook.getState().adoptStorage();
+	}, []);
 	const api = (0, import_react.useMemo)(() => ({
 		openAppt: (draft) => {
 			setClient(null);

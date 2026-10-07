@@ -466,6 +466,7 @@ function defaultServices(): ServiceType[] {
 }
 
 function seedBook(): Book {
+  const stamp = `${todayISO()}T12:00:00.000Z`;
   const clients: Client[] = [
     {
       id: "cli-marina",
@@ -475,7 +476,7 @@ function seedBook(): Book {
       notes: "Prefere pergunta objetiva. Veio por indicação da irmã.",
       birthday: birthdayNear(2, 1991),
       source: "Indicação",
-      createdAt: new Date().toISOString(),
+      createdAt: stamp,
       demo: true,
     },
     {
@@ -486,7 +487,7 @@ function seedBook(): Book {
       notes: "Sensível a horário. Confirmar na véspera.",
       birthday: "",
       source: "Instagram",
-      createdAt: new Date().toISOString(),
+      createdAt: stamp,
       demo: true,
     },
     {
@@ -497,7 +498,7 @@ function seedBook(): Book {
       notes: "",
       birthday: "",
       source: "Indicação",
-      createdAt: new Date().toISOString(),
+      createdAt: stamp,
       demo: true,
     },
     {
@@ -508,7 +509,7 @@ function seedBook(): Book {
       notes: "Pediu para pagar depois do quinto dia útil.",
       birthday: "",
       source: "WhatsApp",
-      createdAt: new Date().toISOString(),
+      createdAt: stamp,
       demo: true,
     },
     {
@@ -519,7 +520,7 @@ function seedBook(): Book {
       notes: "",
       birthday: "",
       source: "Cliente antiga",
-      createdAt: new Date().toISOString(),
+      createdAt: stamp,
       demo: true,
     },
     {
@@ -530,7 +531,7 @@ function seedBook(): Book {
       notes: "Pediu retorno. Ainda não marcou.",
       birthday: "",
       source: "Indicação",
-      createdAt: new Date().toISOString(),
+      createdAt: stamp,
       demo: true,
     },
   ];
@@ -546,7 +547,7 @@ function seedBook(): Book {
     reminderDone: false,
     visitStatus: "agendado",
     notes: "",
-    createdAt: new Date().toISOString(),
+    createdAt: stamp,
     paidAt: partial.payStatus === "pago" ? partial.date : "",
     demo: true,
     ...partial,
@@ -699,23 +700,13 @@ function persistBook(book: Book) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(book));
 }
 
-function loadBook(): Book {
-  if (typeof window === "undefined") {
-    return { clients: [], appointments: [], services: defaultServices(), settings: defaultSettings() };
-  }
+function readStored(): Book | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const seeded = seedBook();
-      persistBook(seeded);
-      return seeded;
-    }
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<Book>;
-    if (!Array.isArray(parsed.clients) || !Array.isArray(parsed.appointments)) {
-      const seeded = seedBook();
-      persistBook(seeded);
-      return seeded;
-    }
+    if (!Array.isArray(parsed.clients) || !Array.isArray(parsed.appointments)) return null;
     return {
       clients: parsed.clients,
       appointments: parsed.appointments,
@@ -723,9 +714,7 @@ function loadBook(): Book {
       settings: { ...defaultSettings(), ...(parsed.settings ?? {}) },
     };
   } catch {
-    const seeded = seedBook();
-    persistBook(seeded);
-    return seeded;
+    return null;
   }
 }
 
@@ -754,6 +743,7 @@ type BookState = Book & {
   replaceBook: (book: Book) => void;
   clearDemo: () => void;
   resetAll: () => void;
+  adoptStorage: () => void;
 };
 
 export const useBook = create<BookState>((set, get) => {
@@ -764,7 +754,16 @@ export const useBook = create<BookState>((set, get) => {
   };
 
   return {
-    ...loadBook(),
+    ...seedBook(),
+
+    adoptStorage: () => {
+      const stored = readStored();
+      if (stored) {
+        set(stored);
+        return;
+      }
+      persistBook(snapshot(get()));
+    },
 
     saveClient: (draft) => {
       const name = draft.name.trim();
